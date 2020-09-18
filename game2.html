@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="stylesheet.css">
+	
+	<style type="text/css">
+
+		body 
+		{
+			background-image: linear-gradient(to right, pink , blue); /* css gradient */
+			background-repeat: repeat; 
+			background-position: center center;
+			background-size: cover;
+			background-color: #e2e2e2;
+		}
+
+		button
+		{
+			display: block;
+			width: 100px;
+			height: 50px;
+			padding: 5px;
+			margin-top: auto;
+
+		}
+		
+		hr.line{
+			width: 100%;
+			margin-left:0px;
+			background-color: red;
+		}
+
+		h2 {
+			font-size: 15px;
+			text-align: center;
+		}
+
+		#diceBody {
+			background-color: #e2e2e2; 
+			width: 900px;
+			border:0px;
+			padding: 10px;
+			margin: auto auto;
+			height:300px;
+			position: static; 
+		}
+
+
+
+	</style>
+
+</head>
+<body onload="createLocalDB();">
+	<div id="content" align="center">
+		<center><h1 style="background-color: orange;"><span style="color: #black;" ><font size="6"><p>Dice</p></font></span></h1></center>
+		<hr class="line">
+
+		<div id="diceBody" align="center">
+			<img class="Dice" id="Dice1st" width="220px" height="220px" align="top" style="margin-left:20px; margin-right: 20px;">
+			<img class="Dice" id="Dice2nd" width="220px" height="220px" align="top" style="margin-left:20px; margin-right: 20px;">
+
+			<h2 id="totalSum"></h2>
+			<h2 id="rounding"></h2>
+			<button onclick="roll()" id="rollButton">ROLLLLL IT!</button>
+		
+		</div>
+		
+
+	</div>
+
+	<div id="timeDiv"></div>
+
+	<script type="text/javascript">
+		var diceImage = ["images/1.jpg","images/2.jpg","images/3.jpg","images/4.jpg","images/5.jpg","images/6.jpg"];
+
+		var practiceDate;
+		var name;
+		var sum = 0;
+		document.getElementById("Dice1st").style.display = "none";
+		document.getElementById("Dice2nd").style.display = "none";
+
+		var rounding =1;
+		var db = openDatabase('RollDice','1.0','Game DB', 2* 1024 * 1024);
+		var msg;
+		var askName = false;
+		
+
+		function roll() {
+			if (!askName){
+				name = prompt("Enter your name. ");
+				if (name == null) return;
+			}
+			askName = true;
+			practiceDate = new Date();
+			document.getElementById("timeDiv").innerHTML = "";
+			var dice1 = document.getElementById("Dice1st");
+			var dice2 = document.getElementById("Dice2nd");
+
+			var math1 = Math.floor(Math.random() * 6);
+			var math2 = Math.floor(Math.random() * 6);
+
+			var button = document.getElementById("rollButton");
+
+			document.getElementById("Dice1st").style.display = "";
+			document.getElementById("Dice2nd").style.display = "";
+
+			var firstValue = diceImage[math1];
+			var secondValue = diceImage[math2];
+
+			dice1.src = firstValue;
+			dice2.src = secondValue;
+
+
+			if(math1 == math2)
+			{
+				sum = sum + math1 +1 + math2 + 1;
+				document.getElementById("rollButton").style.display ="";
+				document.getElementById("rounding").innerHTML = "Number of Round(s): " + rounding; 
+				document.getElementById("totalSum").innerHTML ="Sum of the Dice: " + sum;
+				rounding++;
+			}
+			else
+			{
+				document.getElementById("rollButton").style.display ="none";
+				sum = sum + math1 +1 + math2 + 1;
+				document.getElementById("rounding").innerHTML = "Number of Round(s): " + rounding; 
+				document.getElementById("totalSum").innerHTML ="Sum of the Dice: " + sum;
+				db.transaction(function (transaction) {
+				transaction.executeSql('INSERT INTO game (name, noOfAttempts, timeOfAttempt, totalResult) VALUES (?, ?, ?, ?);',[name, rounding, practiceDate.getTime(), sum])
+			})
+			}
+
+
+		}
+
+
+		function createLocalDB() {
+			db.transaction(
+				function (transaction) {
+					transaction.executeSql('CREATE TABLE IF NOT EXISTS game ( gID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, noOfAttempts INTEGER NOT NULL, timeOfAttempt INTEGER NOT NULL, totalResult NUMERIC NOT NULL);',[],
+						function dataHandler (transaction, results) {},
+						function errorHandler (transaction, error) {
+							console.error("Error creating table: "+ error.code + ": " + error.message);
+						});
+				});
+		}
+
+		function checkAnswer() {
+			//save the results into database.
+			db.transaction(function (transaction) {
+				transaction.executeSql('INSERT INTO game (name, noOfAttempts, timeOfAttempt, totalResult) VALUES (?, ?, ?, ?);',[practiceDate.getTime(), name, noOfAttempts, timeOfAttempt, totalResult])
+			})
+		}
+
+		function processResult(transaction, results) {
+			displayResult(results);
+		}
+
+
+
+	</script>
+	
+</body>
+</html>

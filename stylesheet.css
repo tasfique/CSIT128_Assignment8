@@ -1,0 +1,43 @@
+
+		#mainBody
+		{
+			width:1224px;
+			height:768px;
+			border:1px solid black;
+			margin: 0px auto 0px auto;
+			background-color: #e2e2e2;
+		}
+		#content
+		{
+			background-color: #e2e2e2; /*CSS Box Model*/
+			width: 1000px;
+			border:1px solid black;
+			padding: 10px;
+			margin: auto auto;
+			height:500px;
+			position: static; /* position property 1 */
+			
+		}
+
+		div span p {
+			font-style: oblique;
+
+		}
+
+		div h2 p { /*descendant*/
+			font-family: sans-serif;
+			font-style: italic;
+		}
+
+		h2 > span > p { /*child-parent*/
+			font-family: "Courier New", Courier, cursive;
+
+		}
+		div {
+			font-family:"Georgia", serif, cursive;
+		}
+
+
+
+
+		

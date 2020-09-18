@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="stylesheet.css">
+	
+	<style type="text/css">
+
+		body 
+		{
+			background-image: linear-gradient(to right, pink , blue); /* css gradient */
+			background-repeat: repeat; 
+			background-position: center center;
+			background-size: cover;
+			background-color: #e2e2e2;
+		}
+
+		button
+		{
+			display: block;
+			width: 100px;
+			height: 50px;
+			padding: 5px;
+			margin-top: auto;
+
+		}
+		
+		hr.line{
+			width: 100%;
+			margin-left:0px;
+			background-color: red;
+		}
+
+		h2 {
+			font-size: 15px;
+			text-align: center;
+		}
+
+		#diceBody {
+			background-color: #e2e2e2; 
+			width: 900px;
+			border:0px;
+			padding: 10px;
+			margin: auto auto;
+			height:300px;
+			position: static; 
+		}
+
+	</style>
+
+</head>
+<body>
+	<div id="content" align="center">
+		<center><h1 style="background-color: orange;"><span style="color: #black;" ><font size="6"><p>Display</p></font></span></h1></center>
+		<hr class="line">
+
+		<button type="button" onclick="record()">Click Me!</button>
+		<span id="viewDIV"></span>
+
+	</div>
+
+	<div id="displayDIV"></div>
+
+	<script type="text/javascript">
+	
+		var db = openDatabase('RollDice','1.0','Game DB', 2* 1024 * 1024);
+
+		function record() {
+			db.transaction(
+				function(transaction) {
+					transaction.executeSql(
+						'Select * FROM game;', [],showResult,
+						function errorHandler(transaction, error) {
+							console.error("Reading Failed: " + error.code + ": " + error.message);
+						});
+				});
+		}
+
+		function showResult(transaction, results) {
+			display(results);
+		}
+
+		function display(results) {
+			var html = "<table border = '1'>";
+			html += "<tr> <th>ID</th> <th>Name</th> <th>No of Attempt</th> <th>Time of Attempt</th> <th>Total</th> </tr>";
+
+			for (var i = 0; i< results.rows.length; i++) {
+				var rowView = results.rows.item(i);
+				html += "<tr>";
+				html += "<td>" + rowView.gID + "</td>";
+				html += "<td>" + rowView.name + "</td>";
+				html += "<td>" + rowView.noOfAttempts + "</td>";
+				html += "<td>" + rowView.timeOfAttempt + "</td>";
+				html += "<td>" + rowView.totalResult + "</td>";
+				html += "</tr>";
+			}
+			html += "</table>";
+			document.getElementById("viewDIV").innerHTML = html;
+		}
+
+	</script>
+	
+</body>
+</html>
